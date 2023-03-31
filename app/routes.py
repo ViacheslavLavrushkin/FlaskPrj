@@ -1,6 +1,7 @@
 from app import app, db
-from flask import render_template, request, Response, json
+from flask import render_template, request, Response, json, redirect, flash
 from app.models import User, Course, Enrollment
+from app.forms import LoginForm, RegisterForm
 
 
 courseData = [{"courseID":"1111","title":"PHP 111","description":"Intro to PHP","credits":"3","term":"Fall, Spring"}, {"courseID":"2222","title":"Java 1","description":"Intro to Java Programming","credits":"4","term":"Spring"}, {"courseID":"3333","title":"Adv PHP 201","description":"Advanced PHP Programming","credits":"3","term":"Fall"}, {"courseID":"4444","title":"Angular 1","description":"Intro to Angular","credits":"3","term":"Fall, Spring"}, {"courseID":"5555","title":"Java 2","description":"Advanced Java Programming","credits":"4","term":"Fall"}]
@@ -12,9 +13,16 @@ courseData = [{"courseID":"1111","title":"PHP 111","description":"Intro to PHP",
 def index():
     return render_template("index.html", index=True)
 
-@app.route("/login")
+@app.route("/login", methods=['GET', 'POST'])
 def login():
-    return render_template("login.html", login=True)
+    form = LoginForm()
+    if form.validate_on_submit():
+        if request.form.get("email") == "test@uta.com":
+            flash("You are successfully logged in!", "success")
+            return redirect("/index")
+        else:
+            flash("Sorry, something went wrong.", "danger")
+    return render_template("login.html", title="Login", form=form, login=True)
 
 @app.route("/courses/")
 @app.route("/courses/<term>")
@@ -44,11 +52,11 @@ def api(idx=None):
 
 
 class User(db.Document):
-    user_id = db.IntField( unique=True)
-    first_name = db.StringField( max_length=50)
-    last_name = db.StringField( max_length=50)
-    email = db.StringField( max_length=30)
-    password = db.StringField( max_length=30)
+    user_id = db.IntField(unique=True)
+    first_name = db.StringField(max_length=50)
+    last_name = db.StringField(max_length=50)
+    email = db.StringField(max_length=30)
+    password = db.StringField(max_length=30)
 
 
 @app.route("/user")
@@ -56,4 +64,5 @@ def user():
     # User(user_id=1, first_name="Slava", last_name="Lav", email="lav@lav.com", password="12345").save()
     # User(user_id=2, first_name="Dash", last_name="Kol", email="kol@kol.com", password="1234567").save()
     users = User.objects.all()
-    return  render_template("user.html", users=users)
+    return render_template("user.html", users=users)
+
