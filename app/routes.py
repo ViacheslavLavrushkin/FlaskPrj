@@ -4,7 +4,12 @@ from app.models import User, Course, Enrollment
 from app.forms import LoginForm, RegisterForm
 
 
-courseData = [{"courseID":"1111","title":"PHP 111","description":"Intro to PHP","credits":"3","term":"Fall, Spring"}, {"courseID":"2222","title":"Java 1","description":"Intro to Java Programming","credits":"4","term":"Spring"}, {"courseID":"3333","title":"Adv PHP 201","description":"Advanced PHP Programming","credits":"3","term":"Fall"}, {"courseID":"4444","title":"Angular 1","description":"Intro to Angular","credits":"3","term":"Fall, Spring"}, {"courseID":"5555","title":"Java 2","description":"Advanced Java Programming","credits":"4","term":"Fall"}]
+courseData = [{"courseID":"1111","title":"PHP 111","description":"Intro to PHP","credits":"3","term":"Fall, Spring"},
+              {"courseID":"2222","title":"Java 1","description":"Intro to Java Programming","credits":"4","term":"Spring"},
+              {"courseID":"3333","title":"Adv PHP 201","description":"Advanced PHP Programming","credits":"3","term":"Fall"},
+              {"courseID":"4444","title":"Angular 1","description":"Intro to Angular","credits":"3","term":"Fall, Spring"},
+              {"courseID":"5555","title":"Java 2","description":"Advanced Java Programming","credits":"4","term":"Fall"
+             }]
 
 
 @app.route("/")
@@ -17,8 +22,12 @@ def index():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        if request.form.get("email") == "test@uta.com":
-            flash("You are successfully logged in!", "success")
+        email = form.email.data
+        password = form.password.data
+
+        user = User.objects(email=email).first()
+        if user and user.get_password(password):
+            flash(f"{user.first_name}, you are successfully logged in!", "success")
             return redirect("/index")
         else:
             flash("Sorry, something went wrong.", "danger")
